@@ -16,7 +16,7 @@ config = {
                 "limit": PAGINATION,
                 "fields": "title,body,showAtLogin,showInCourses,availability,id"
             },
-            "replace": "{courseId}"
+            "replace": "{announcementId}"
         },
         "courses": {
             "path": "/learn/api/public/v1/courses",
