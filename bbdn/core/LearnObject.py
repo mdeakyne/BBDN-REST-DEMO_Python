@@ -58,11 +58,16 @@ class LearnObject:
         self.isPaginated = False
 
         # Action controls
+        self.batch = options['--batch']
         self.data = options['--data']
         # if a file is provided, override self.data
         if options['--file'] != 'None':
             with open(options['--file']) as f:
-                self.data = json.dumps(json.loads(f.read()))
+                tmp = json.loads(f.read())
+                if not self.batch:
+                    tmp = json.dumps(tmp)
+
+                self.data = tmp
 
         self.debug = options['--debug']
         self.enrollments = options['--enrollments']
@@ -96,6 +101,10 @@ class LearnObject:
         self.user_id = options['USER-ID']
         self.announcement_id = options['ANNOUNCEMENT-ID']
 
+        # batch override id
+        self.current_id = None
+        self.current_data = None
+
     @staticmethod
     def date_handler(obj):
         if hasattr(obj, 'isoformat'):
@@ -122,16 +131,41 @@ class LearnObject:
 
     def update(self, obj_id=None, id_type=None, data=None, params=None):
         try:
+            if self.batch:
+                for item in self.data:
+                    if self.debug:
+                        print(item)
+                        print(self.type)
+                    update_key = 'id' if self.type[0] == 'primaryId' else self.type[0]
+                    if self.debug:
+                        print(update_key)
 
-            if self.verbose:
-                print("Data from update:", type(self.data), json.loads(self.data))
+                    self.current_id = item[update_key]
+                    self.current_data = item
+                    del self.current_data['id']
 
-            if self.validator.validate(json.loads(self.data)):
+                    if self.verbose:
+                        print("Data from update:", type(self.current_data),
+                              json.dumps(self.current_data))
+
+                    if self.validator.validate(self.current_data):
+                        if self.verbose:
+                            print("[%s] update called" % self.class_name)
+                        self.current_data = json.dumps(self.current_data)
+                        url = self.prep_url()
+                        print(url)
+                        self.do_rest(url)
+
+            else:
                 if self.verbose:
-                    print("[%s] update called" % self.class_name)
-                url = self.prep_url()
-                print(url)
-                self.do_rest(url)
+                    print("Data from update:", type(self.data), json.loads(self.data))
+
+                if self.validator.validate(json.loads(self.data)):
+                    if self.verbose:
+                        print("[%s] update called" % self.class_name)
+                    url = self.prep_url()
+                    print(url)
+                    self.do_rest(url)
 
         except SchemaError as se:
             self.res = {"error": se}
@@ -164,23 +198,28 @@ class LearnObject:
 
     def prep_url(self):
         url = 'https://%s%s' % (self.target_url, self.api_path)
-
+        if self.debug:
+            print('=' * 20)
         # Requesting single obj?
         if self.api_type == 'users':
-            if self.user_id:
-                url += '/%s:%s' % (self.type[0], self.user_id)
+            if self.current_id or self.user_id:
+                if self.debug:
+                    print('[prep_url: users]', self.current_id, self.user_id)
+                url += '/%s:%s' % (self.type[0], self.current_id or self.user_id)
 
                 # check for enrollments?
                 if self.enrollments:
                     url += '/courses'
+        if self.debug:
+            print('=' * 20)
 
         elif self.api_type == 'announcements':
-            if self.announcement_id:
-                url += '/%s:%s' % (self.type[0], self.announcement_id)
+            if self.current_id or self.announcement_id:
+                url += '/%s:%s' % (self.type[0], self.current_id or self.announcement_id)
 
         elif self.api_type == 'courses':
-            if self.course_id:
-                url += '/%s:%s' % (self.type[0], self.course_id)
+            if self.current_id or self.course_id:
+                url += '/%s:%s' % (self.type[0], self.current_id or self.course_id)
 
                 # child course(s)
                 if self.child_course_id:
@@ -188,49 +227,50 @@ class LearnObject:
                         url += '/children'
                     else:
                         url += '/children/%s:%s' % (self.type[1]
-                                                    or self.type[0], self.child_course_id)
+                                                    or self.type[0], self.current_id or self.child_course_id)
 
         elif self.api_type == 'contents':
             # contents was pre-appended: replace with courses
             url = url.replace('contents', 'courses')
-            url += '/%s:%s/contents' % (self.type[0], self.course_id)
+            url += '/%s:%s/contents' % (self.type[0], self.current_id or self.course_id)
 
             # child content(s)
-            if self.content_id:
+            if self.current_id or self.content_id:
                 if self.content_id == 'ALL':
                     url += '/%s:%s' % (self.type[1]
-                                       or self.type[0], self.content_id)
+                                       or self.type[0], self.current_id or self.content_id)
                 else:
-                    url += '/%s/children/' % self.child_course_id
+                    url += '/%s/children/' % self.current_id or self.child_course_id
 
         elif self.api_type == 'grades':
             # groups was pre-appended: replace with courses
             url = url.replace('grades', 'courses')
-            url += '/%s:%s/gradebook/columns' % (self.type[0], self.course_id)
-            if self.column_id:
+            url += '/%s:%s/gradebook/columns' % (self.type[0], self.current_id or self.course_id)
+            if self.current_id or self.column_id:
                 if self.column_id:
-                    url += '/%s:%s' % (self.type[1] or self.type[0], self.column_id)
+                    url += '/%s:%s' % (self.type[1] or self.type[0],
+                                       self.current_id or self.column_id)
 
                     if self.attempts_id:
                         if self.attempts_id == 'ALL':
                             url += '/attempts'
                         else:
                             url += '/attempts/%s:%s' % (self.type[2] or self.type[1]
-                                                        or self.type[0], self.attempts_id)
+                                                        or self.type[0], self.current_id or self.attempts_id)
 
                     if self.user_id:
                         if self.user_id == 'ALL':
                             url += '/users'
                         else:
                             url += '/users/%s:%s' % (self.type[2] or self.type[1]
-                                                     or self.type[0], self.user_id)
+                                                     or self.type[0], self.current_id or self.user_id)
             else:
                 # columns was not supplied but a user was
-                if self.user_id:
+                if self.current_id or self.user_id:
                     # remove the pre-appended columns with nothing and rebuild url
                     url = url.replace('columns', '')
                     url += '/users/%s:%s' % (self.type[2] or self.type[1]
-                                             or self.type[0], self.user_id)
+                                             or self.type[0], self.current_id or self.user_id)
 
         elif self.api_type == 'groups':
             # groups was pre-appended: replace with courses
@@ -238,28 +278,28 @@ class LearnObject:
             url += '/%s:%s/contents/%s:%s/groups' % (self.type[0],
                                                      self.type[1]
                                                      or self.type[0])
-            if self.group_id:
+            if self.current_id or self.group_id:
                 url += '/%s:%s' % (self.type[2]
                                    or self.type[1]
-                                   or self.type[0], self.group_id)
+                                   or self.type[0], self.current_id or self.group_id)
 
         elif self.api_type == 'memberships':
             # memberships was pre-appended: replace with courses
             url = url.replace('memberships', 'courses')
-            url += '/%s:%s/users' % (self.type[0], self.course_id)
-            if self.user_id:
-                url += '/%s:%s' % (self.type[1] or self.type[0], self.user_id)
+            url += '/%s:%s/users' % (self.type[0], self.current_id or self.course_id)
+            if self.current_id or self.user_id:
+                url += '/%s:%s' % (self.type[1] or self.type[0], self.current_id or self.user_id)
 
         elif self.api_type == 'datasources':
-            if self.data_source_id:
-                url += '/%s:%s' % (self.type[0], self.data_source_id)
+            if self.current_id or self.data_source_id:
+                url += '/%s:%s' % (self.type[0], self.current_id or self.data_source_id)
 
         elif self.api_type == 'system':
             url += '/version'
 
         elif self.api_type == 'terms':
-            if self.term_id:
-                url += '/%s:%s' % (self.type[0], self.term_id)
+            if self.current_id or self.term_id:
+                url += '/%s:%s' % (self.type[0], self.current_id or self.term_id)
 
         return url
 
@@ -275,7 +315,7 @@ class LearnObject:
         if self.isPaginated:
             self.params = None
 
-        req = requests.Request(self.method.upper(), url, data=self.data,
+        req = requests.Request(self.method.upper(), url, data=self.current_data or self.data,
                                headers=headers, params=self.params)
         prepped = session.prepare_request(req)
 

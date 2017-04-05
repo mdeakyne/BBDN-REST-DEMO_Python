@@ -74,6 +74,7 @@ Options:
                                             the defaults will be overwritten.
                                     [default: None]
     -f <file>..., --file <file>...  Data used in post, put, patch methods, but using a file or a list of files. Overrides --data. [default: None]
+    -B, --batch                     If set, the <file> (single path), will process each line during the API request. [default: false]
     -D, --debug                     Turn on debug mode. [default: False]
     -P <page>, --get-page <page>    Accepts the pagination value returned from a previous request.
                                     If set, then all ids, types, params are ignored. As they are
