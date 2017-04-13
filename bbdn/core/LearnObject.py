@@ -142,7 +142,12 @@ class LearnObject:
 
                     self.current_id = item[update_key]
                     self.current_data = item
-                    del self.current_data['id']
+
+                    try:
+                        del self.current_data['id']
+                    except KeyError:
+                        if self.verbose:
+                            print("Info: primaryId (id) was supplied in data file.")
 
                     if self.verbose:
                         print("Data from update:", type(self.current_data),
