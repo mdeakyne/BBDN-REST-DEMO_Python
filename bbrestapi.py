@@ -11,7 +11,7 @@ Usage:
     bbrestapi courses [COURSE-ID CHILD-COURSE-ID] [options]
     bbrestapi contents COURSE-ID [CONTENT-ID] [options]
     bbrestapi groups COURSE-ID [CONTENT-ID GROUP-ID USER-ID] [options]
-    bbrestapi memberships COURSE-ID [USER-ID] [options]
+    bbrestapi memberships [COURSE-ID [USER-ID]] [options]
     bbrestapi grades COURSE-ID [COLUMN-ID ATTEMPTS-ID USER-ID] [options]
     bbrestapi users [USER-ID] [options]
     bbrestapi datasources [DATA-SOURCE-ID] [options]

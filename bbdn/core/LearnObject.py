@@ -30,6 +30,7 @@ from bbdn.core.Auth import Tls1Adapter
 from bbdn.core.Validator import AnnouncementSchema, UserSchema, CourseSchema, ContentsSchema, DataSourceSchema, TermSchema, MembershipSchema, GradebookColumnSchema, SystemSchema
 from settings import config as settings
 from schema import SchemaError
+import sys
 
 validators = {
     'announcements': AnnouncementSchema,
@@ -88,6 +89,17 @@ class LearnObject:
         except json.decoder.JSONDecodeError:
             self.params = default_params.copy()
 
+        self.announcements = options['announcements']
+        self.contents = options['contents']
+        self.courses = options['courses']
+        self.datasources = options['datasources']
+        self.grades = options['grades']
+        self.groups = options['groups']
+        self.memberships = options['memberships']
+        self.system = options['system']
+        self.terms = options['terms']
+        self.users = options['users']
+
         self.type = options['--type'].split(',')
         self.verbose = options['--verbose']
         self.attempts_id = options['ATTEMPTS-ID']
@@ -114,15 +126,62 @@ class LearnObject:
 
     def create(self):
         try:
-            if self.verbose:
-                print("Data from create:", type(self.data), json.loads(self.data))
-
-            if self.validator.validate(json.loads(self.data)):
+            if self.batch:
                 if self.verbose:
-                    print("[%s] create called" % self.class_name)
-                url = self.prep_url()
-                print(url)
-                self.do_rest(url)
+                    print("Data from create:", type(self.data), json.loads(self.data))
+
+                for item in self.data:
+                    if self.debug or self.verbose:
+                        print(item)
+                        print(self.type)
+
+                    if self.memberships and not self.course_id:
+                        self.course_id = item['courseId']
+                        self.user_id = item['userId']
+
+                    self.current_data = item
+
+                    try:
+                        del self.current_data['id']
+                    except KeyError:
+                        if self.verbose:
+                            print("Info: primaryId (id) was supplied in data file.")
+
+                    try:
+                        del self.current_data['userId']
+                    except KeyError:
+                        if self.verbose:
+                            print("Info: userId (id) was supplied in data file.")
+
+                    if self.verbose:
+                        print("Data from create:", type(self.current_data),
+                              json.dumps(self.current_data))
+
+                    if self.validator.validate(self.current_data):
+                        if self.verbose:
+                            print("[%s] create called" % self.class_name)
+                        self.current_data = json.dumps(self.current_data)
+                        url = self.prep_url()
+                        print(url)
+                        self.do_rest(url)
+
+                    # if self.validator.validate(json.loads(self.data)):
+                    #     if self.verbose:
+                    #         print("[%s] create called" % self.class_name)
+                    #     url = self.prep_url()
+                    #     print(url)
+                    #     self.do_rest(url)
+
+            else:
+                if self.verbose:
+                    print("Data from create:", type(self.data), json.loads(self.data))
+
+                if self.validator.validate(json.loads(self.data)):
+                    if self.verbose:
+                        print("[%s] create called" % self.class_name)
+                    url = self.prep_url()
+                    print(url)
+                    self.do_rest(url)
 
         except SchemaError as se:
             self.res = {"error": se}
@@ -133,14 +192,24 @@ class LearnObject:
         try:
             if self.batch:
                 for item in self.data:
-                    if self.debug:
+                    if self.debug or self.verbose:
                         print(item)
                         print(self.type)
                     update_key = 'id' if self.type[0] == 'primaryId' else self.type[0]
-                    if self.debug:
+                    if self.debug or self.verbose:
                         print(update_key)
 
-                    self.current_id = item[update_key]
+                    if self.memberships and not self.course_id:
+                        self.course_id = item['courseId']
+                        self.user_id = item['userId']
+                    else:
+                        try:
+                            self.current_id = item[update_key]
+                        except KeyError:
+                            print('Error assigning item[update_key]')
+                            print(item)
+                            sys.exit(1)
+
                     self.current_data = item
 
                     try:
@@ -290,10 +359,28 @@ class LearnObject:
 
         elif self.api_type == 'memberships':
             # memberships was pre-appended: replace with courses
+            if self.verbose:
+                print('[prep_url():memberships] called')
             url = url.replace('memberships', 'courses')
-            url += '/%s:%s/users' % (self.type[0], self.current_id or self.course_id)
-            if self.current_id or self.user_id:
-                url += '/%s:%s' % (self.type[1] or self.type[0], self.current_id or self.user_id)
+            # url += '/%s:%s/users' % (self.type[0], self.current_id or self.course_id)
+            url += '/%s:%s/users' % (self.type[0], self.course_id)
+            if self.verbose:
+                print(url)
+            if self.user_id or self.current_id:
+                # url += '/%s:%s' % (self.type[1] or self.type[0], self.current_id or self.user_id)
+                if self.debug or self.verbose:
+                    print(self.type, self.user_id)
+
+                _type = None
+                try:
+                    _type = self.type[1] or self.type[0]
+                except IndexError:
+                    _type = self.type[0]
+
+                # url += '/%s:%s' % (self.type[1] or self.type[0], self.user_id)
+                url += '/%s:%s' % (_type, self.user_id)
+            print(url)
+            # sys.exit(1)
 
         elif self.api_type == 'datasources':
             if self.current_id or self.data_source_id:

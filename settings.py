@@ -4,7 +4,7 @@ config = {
     "secret": "Ii0bPCLdnaPM6dPsiQcv91hTRRP1wS8T",
     "credentials": "client_credentials",
     "cert_path": "./trusted/keytool_crt.pem",
-    "target_url": "irsc.blackboard.com",
+    "target_url": "irscstaging.blackboard.com",
     "api": {
         "base": {
             "path": "/learn/api/public/v1/"

@@ -149,14 +149,17 @@ TermSchema = Schema({
 })
 
 MembershipSchema = Schema({
+    Optional("externalId"): str,
+    Optional("userId"): str,
+    Optional("courseId"): str,
     Optional("childCourseId"): str,
     Optional("dataSourceId"): str,
     Optional("created"): And(str, Regex(date_pattern)),
     Optional("availability"): {
         Optional("available"): And(str, Use(str.title), lambda s: s in ['Yes', 'No'])
     },
-    Optional("courseRoleId"): And(str, lambda s: s in ["Instructor", "TeachingAssistant", "CourseBuilder", "Grader", "Student",
-                                                       "Guest"])
+    Optional("courseRoleId"): And(str, lambda s: s in ["Instructor", "FacultyVC", "TeachingAssistant", "CourseBuilder",
+                                                       "Grader", "Student", "Guest"])
 })
 
 SystemSchema = Schema({
