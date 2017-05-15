@@ -9,3 +9,4 @@ rest-key-secret
 ./**/*.pyc
 settings_backup.py
 json_data
+irsc_test_data

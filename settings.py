@@ -1,10 +1,10 @@
 PAGINATION = 10
 config = {
-    "key": "675372bb-4690-4e18-9744-ba72ab791a51",
-    "secret": "Ii0bPCLdnaPM6dPsiQcv91hTRRP1wS8T",
+    "key": "YOUR_KEY",
+    "secret": "YOUR_SECRET",
     "credentials": "client_credentials",
     "cert_path": "./trusted/keytool_crt.pem",
-    "target_url": "irscstaging.blackboard.com",
+    "target_url": "your.bb.instance",
     "api": {
         "base": {
             "path": "/learn/api/public/v1/"
