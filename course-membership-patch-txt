@@ -1,0 +1,448 @@
+I am adding a poor man's batch process where I add a -B and -f path/to/file.json to the rest api. This process then loads the json file and loops through each record during the token's session then completes.
+
+The issue I am seeing is that I am getting a deserialize error on our custom role. Could this be a result of a hyphen in the name?
+
+CM-2013.json:
+
+[{ "userId": "rwilloug", "courseId": "BSC2010-228357", "courseRoleId": "Faculty-VCF" },
+{ "userId": "rwilloug", "courseId": "BSC2010-226600", "courseRoleId": "Faculty-VCF" },
+...
+.. removed for brevity
+...]
+
+
+
+$ clear;python ./bbrestapi.py memberships -m patch -B -t externalId -f test_data/CM-20173.json >> json_data/CM-2013-Results.json
+
+snippets from the results:
+
+https://irsc.blackboard.com/learn/api/public/v1/courses/externalId:BSC2010-228357/users/externalId:rwilloug
+
+
+{"message": "Could not read document: could not deserialize Faculty-VCF into a BbEnum (through reference chain: 1.memberships.MembershipTOPubV1[\"courseRoleId\"]); nested exception is : could not deserialize Faculty-VCF into a BbEnum (through reference chain: 1.memberships.MembershipTOPubV1[\"courseRoleId\"])", "status": 400, "extraInfo": "5c305f2335d947c2a182dde2700f104f"}
+
+running on Release 3100.0.0-rel.107+401e22b
+
+We are also looking to update to Q2 2017, has this been resolved or new?
+10:00 AM
+Mark O'Neil
+Mark O'Neil
+Hi Mike,
+ 
+Course Roles are limited to the provided roles of
+ 
+There are no ‘custom course roles’ - I notice that the model states that "Custom course roles may also be referenced by their IDs.” - I believe that is a copy paste error and will discuss with the team.
+ 
+Cheers,
+-m
+ 
+Mark O'Neil
+Senior Product Manager, Developer Platform and REST APIs
+Product Management
+Blackboard Inc.
+T: 603-287-1836
+ 
+Quick Links:
+Developer Platform<https://developer.blackboard.com/>
+Developer Community<https://community.blackboard.com/community/developers>
+DevCon New Orleans<http://bbworld.com/devcon/>
+10:16 AM
+Michael Bechtel
+You
+Any notion of having the ability to add custom roles to the list?:D
+10:20 AM
+Mark O'Neil
+Mark O'Neil
+I do not expect this to change re course roles as those are very specific to the internal privileges and workflows in a course or organization.
+ 
+“Custom course roles” could (likely would) introduce all sorts if mis-behavior due to the privileges associated.
+ 
+Cheers,
+-m
+ 
+Mark O'Neil
+Senior Product Manager, Developer Platform and REST APIs
+Product Management
+Blackboard Inc.
+T: 603-287-1836
+ 
+Quick Links:
+Developer Platform<https://developer.blackboard.com/>
+Developer Community<https://community.blackboard.com/community/developers>
+DevCon New Orleans<http://bbworld.com/devcon/>
+10:24 AM
+Michael Bechtel
+You
+Well this puts a damper on one of my apps :( which is one of presentations this year (eek)...... what kind of workarounds could I do to get it emulate this affect? The only option I see for custom roles, is to either return with a Error stating this limitation or implement a flat file collection then have the api cli do a SIS fall back and generate the feed via Models. Which of course is undesirable as it likes go backwards from our progress. 
+10:54 AM
+Mark O'Neil
+Mark O'Neil
+There have never been custom course roles - only custom system and institutional roles. We currently support system roles and institutional roles are on the roadmap.
+ 
+Perhaps you can elaborate on what you are attempting re the roles?
+ 
+Cheers,
+-m
+ 
+Mark O'Neil
+Senior Product Manager, Developer Platform and REST APIs
+Product Management
+Blackboard Inc.
+T: 603-287-1836
+ 
+Quick Links:
+Developer Platform<https://developer.blackboard.com/>
+Developer Community<https://community.blackboard.com/community/developers>
+DevCon New Orleans<http://bbworld.com/devcon/>
+10:57 AM
+Michael Bechtel
+You
+What I am trying to do is assign a role using the membership rest api endpoint. I am not trying to create a new custom course role. The should be a way to allow usage of custom course roles via the membership REST API.
+
+Admin Panel >> Courses Panel >> Course/Organization Roles >>
+B Course Builder Yes Organization Builder Yes
+CC Course Copier Yes Course Copier Yes This role was established to allow a user to only copy a course and not be able to modify the current contents of the source. 04/25/14 - Michael Bechtel
+F Faculty Yes Facilitator Yes IRSC Instructor - 02/12/2014 (JLH, MCB) edited: 03/20/2014 - All IRSC Instructors will not modify the roster or course copy into new courses (SIS Handles this process.)
+G Grader Yes Grader Yes
+P Instructor Yes Leader Yes
+S Student Yes Participant Yes
+T Teaching Assistant Yes Assistant Yes
+U Guest Yes Guest Yes
+VCF Faculty-VC Yes Leader-VC Yes Virtual Campus Faculty Role for Course Instructor role. After the update to Oct2014, the original Faculty role has been affected. Added to handle Virtual Campus Roles. 01/09/2017 - Edited to remove Import/Export Privileges - JLH
+11:20 AM
+Mark you have time to jump into the admin office hours collab room? Maybe I can show you it in realtime?..
+11:34 AM
+Update, creating the initial enrollment works, it is just when you try to update the user/course role from the patch method.
+12:38 PM
+Clarifying: The hyphen is allowed in PUT for the role, just not for PATCH
+12:39 PM
+Mark O'Neil
+Mark O'Neil
+Okay…
+ 
+So in a way I was right - no, you cannot directly create course roles.
+ 
+BUT you can associate other roles indirectly via the use of user roles in a membership - thus if a User has a Role of Course Copier, and create a membership you should be able to apply a "courseRoleId":"Course Copier” to other users.
+ 
+The fact that the API errors on a hyphenated role ("Faculty-VCF”) suggests a bug - I am discussing with the engineers and will file a ticket for further investigation.
+ 
+Cheers,
+-m
+ 
+Mark O'Neil
+Senior Product Manager, Developer Platform and REST APIs
+Product Management
+Blackboard Inc.
+T: 603-287-1836
+ 
+Quick Links:
+Developer Platform<https://developer.blackboard.com/>
+Developer Community<https://community.blackboard.com/community/developers>
+DevCon New Orleans<http://bbworld.com/devcon/>
+12:45 PM
+Michael Bechtel
+You
+Yes, correct in that there is no way to create a custom course role. But, assigning a pre-existing course role to a user via the membership is there, just that the deserialization process has not been updated to detect hyphens. I would also suggest making sure to detect other methods are well. Also, testing for periods, pluses, underscores and colons would be beneficial to the cause.
+12:50 PM
+Mark O'Neil
+Mark O'Neil
+Mike,
+ 
+Could you get me the bb-services log exception referenced by the “5c305f2335d947c2a182dde2700f104f” (or a more current fail?
+ 
+Also what version Learn, etc.
+ 
+Cheers,
+-m
+ 
+Mark O'Neil
+Senior Product Manager, Developer Platform and REST APIs
+Product Management
+Blackboard Inc.
+T: 603-287-1836
+ 
+Quick Links:
+Developer Platform<https://developer.blackboard.com/>
+Developer Community<https://community.blackboard.com/community/developers>
+DevCon New Orleans<http://bbworld.com/devcon/>
+1:36 PM
+{"message": "Could not read document: could not deserialize Faculty-VCF into a BbEnum (through reference chain: 1.memberships.MembershipTOPubV1[\"courseRoleId\"]); nested exception is : could not deserialize Faculty-VCF into a BbEnum (through reference chain: 1.memberships.MembershipTOPubV1[\"courseRoleId\"])", "status": 400, "extraInfo": "5c305f2335d947c2a182dde2700f104f"}
+ 
+ 
+Below the role is “Faculty-VC” - perhaps that is the error?
+ 
+Cheers,
+-m
+ 
+Mark O'Neil
+Senior Product Manager, Developer Platform and REST APIs
+Product Management
+Blackboard Inc.
+T: 603-287-1836
+ 
+Quick Links:
+Developer Platform<https://developer.blackboard.com/>
+Developer Community<https://community.blackboard.com/community/developers>
+DevCon New Orleans<http://bbworld.com/devcon/>
+1:45 PM
+Michael Bechtel
+You
+Bb Release: Release 3100.0.0-rel.107+401e22b
+
+test json file:
+[{ "userId": "bbafacilitator", "courseId": "LOR-CC-mbechtel", "courseRoleId": "Faculty-VCF" }]
+
+Snippets from my logs:
+
+[Membership:do_rest()] method=patch, url=https://irscstaging.blackboard.com/learn/api/public/v1/courses/externalId:LOR-CC-mbechtel/users/userName:bbafacilitator, data=[{'courseId': 'LOR-CC-mbechtel', 'userId': 'bbafacilitator', 'courseRoleId': 'Faculty-VCF'}]
+
+Prepared Request: https://irscstaging.blackboard.com/learn/api/public/v1/courses/externalId:LOR-CC-
+mbechtel/users/userName:bbafacilitator?fields=externalId%2Cavailability&offset=0&limit=10
+
+[Membership:patch()] PATCH Request URL: https://irscstaging.blackboard.com/learn/api/public/v1/courses/externalId:LOR-CC-mbechtel/users/userName:bbafacilitator[Membership:patch()] STATUS CODE: 400
+
+[Membership:patch()] RESPONSE:
+{"message": "Could not read document: could not deserialize Faculty-VCF into a BbEnum (through reference chain: 1.memberships.MembershipTOPubV1[\"courseRoleId\"]); nested exception is : could not deserialize Faculty-VCF into a BbEnum (through reference chain: 1.memberships.MembershipTOPubV1[\"courseRoleId\"])", "extraInfo": "13b8b461bb514fd7b28bbbaf48080ee4", "status": 400}"{\"message\": \"Could not read document: could not deserialize Faculty-VCF into a BbEnum (through reference chain: 1.memberships.MembershipTOPubV1[\\\"courseRoleId\\\"]); nested exception is : could not deserialize Faculty-VCF into a BbEnum (through reference chain: 1.memberships.MembershipTOPubV1[\\\"courseRoleId\\\"])\", \"extraInfo\": \"13b8b461bb514fd7b28bbbaf48080ee4\", \"status\": 400}"
+
+{"message": "Could not read document: could not deserialize Faculty-VCF into a BbEnum (through reference chain: 1.memberships.MembershipTOPubV1[\"courseRoleId\"]); nested exception is : co
+
+
+
+
+Latest re-run fail log:
+2017-05-10 13:59:29 -0400 - Error Id: 13b8b461bb514fd7b28bbbaf48080ee4 - org.springframework.http.converter.HttpMessageNotReadableException: Could not read document: could not deserialize Faculty-VCF into a BbEnum (through reference chain: blackboard.webapps.blackboard.publicapi.v1.memberships.MembershipTOPubV1["courseRoleId"]); nested exception is com.fasterxml.jackson.databind.JsonMappingException: could not deserialize Faculty-VCF into a BbEnum (through reference chain: blackboard.webapps.blackboard.publicapi.v1.memberships.MembershipTOPubV1["courseRoleId"]) at org.springframework.http.converter.json.AbstractJackson2HttpMessageConverter.readJavaType(AbstractJackson2HttpMessageConverter.java:224) at org.springframework.http.converter.json.AbstractJackson2HttpMessageConverter.read(AbstractJackson2HttpMessageConverter.java:208) at org.springframework.web.servlet.mvc.method.annotation.AbstractMessageConverterMethodArgumentResolver.readWithMessageConverters(AbstractMessageConverterMethodArgumentResolver.java:197) at org.springframework.web.servlet.mvc.method.annotation.RequestResponseBodyMethodProcessor.readWithMessageConverters(RequestResponseBodyMethodProcessor.java:147) at org.springframework.web.servlet.mvc.method.annotation.RequestResponseBodyMethodProcessor.resolveArgument(RequestResponseBodyMethodProcessor.java:125) at org.springframework.web.method.support.HandlerMethodArgumentResolverComposite.resolveArgument(HandlerMethodArgumentResolverComposite.java:78) at org.springframework.web.method.support.InvocableHandlerMethod.getMethodArgumentValues(InvocableHandlerMethod.java:162) at org.springframework.web.method.support.InvocableHandlerMethod.invokeForRequest(InvocableHandlerMethod.java:129) at org.springframework.web.servlet.mvc.method.annotation.ServletInvocableHandlerMethod.invokeAndHandle(ServletInvocableHandlerMethod.java:110) at org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.invokeHandlerMethod(RequestMappingHandlerAdapter.java:814) at org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.handleInternal(RequestMappingHandlerAdapter.java:737) at org.springframework.web.servlet.mvc.method.AbstractHandlerMethodAdapter.handle(AbstractHandlerMethodAdapter.java:85) at org.springframework.web.servlet.DispatcherServlet.doDispatch(DispatcherServlet.java:959) at org.springframework.web.servlet.DispatcherServlet.doService(DispatcherServlet.java:893) at org.springframework.web.servlet.FrameworkServlet.processRequest(FrameworkServlet.java:969) at org.springframework.web.servlet.FrameworkServlet.service(FrameworkServlet.java:842) at javax.servlet.http.HttpServlet.service(HttpServlet.java:729) at sun.reflect.GeneratedMethodAccessor1009.invoke(Unknown Source) at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43) at java.lang.reflect.Method.invoke(Method.java:498) at org.apache.catalina.security.SecurityUtil$1.run(SecurityUtil.java:282) at org.apache.catalina.security.SecurityUtil$1.run(SecurityUtil.java:279) at java.security.AccessController.doPrivileged(Native Method) at javax.security.auth.Subject.doAsPrivileged(Subject.java:549) at org.apache.catalina.security.SecurityUtil.execute(SecurityUtil.java:314) at org.apache.catalina.security.SecurityUtil.doAsPrivilege(SecurityUtil.java:170) at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:224) at org.apache.catalina.core.ApplicationFilterChain.access$000(ApplicationFilterChain.java:46) at org.apache.catalina.core.ApplicationFilterChain$1.run(ApplicationFilterChain.java:148) at org.apache.catalina.core.ApplicationFilterChain$1.run(ApplicationFilterChain.java:144) at java.security.AccessController.doPrivileged(Native Method) at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:143) at org.apache.catalina.core.ApplicationDispatcher.invoke(ApplicationDispatcher.java:726) at org.apache.catalina.core.ApplicationDispatcher.processRequest(ApplicationDispatcher.java:469) at org.apache.catalina.core.ApplicationDispatcher.doForward(ApplicationDispatcher.java:394) at org.apache.catalina.core.ApplicationDispatcher.access$000(ApplicationDispatcher.java:63) at org.apache.catalina.core.ApplicationDispatcher$PrivilegedForward.run(ApplicationDispatcher.java:95) at org.apache.catalina.core.ApplicationDispatcher$PrivilegedForward.run(ApplicationDispatcher.java:83) at java.security.AccessController.doPrivileged(Native Method) at org.apache.catalina.core.ApplicationDispatcher.forward(ApplicationDispatcher.java:303) at blackboard.plugin.rest.web.ApiController.dispatchRequest(ApiController.java:715) at blackboard.plugin.rest.web.ApiController.service(ApiController.java:532) at javax.servlet.http.HttpServlet.service(HttpServlet.java:729) at sun.reflect.GeneratedMethodAccessor1009.invoke(Unknown Source) at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43) at java.lang.reflect.Method.invoke(Method.java:498) at org.apache.catalina.security.SecurityUtil$1.run(SecurityUtil.java:282) at org.apache.catalina.security.SecurityUtil$1.run(SecurityUtil.java:279) at java.security.AccessController.doPrivileged(Native Method) at javax.security.auth.Subject.doAsPrivileged(Subject.java:549) at org.apache.catalina.security.SecurityUtil.execute(SecurityUtil.java:314) at org.apache.catalina.security.SecurityUtil.doAsPrivilege(SecurityUtil.java:170) at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:224) at org.apache.catalina.core.ApplicationFilterChain.access$000(ApplicationFilterChain.java:46) at org.apache.catalina.core.ApplicationFilterChain$1.run(ApplicationFilterChain.java:148) at org.apache.catalina.core.ApplicationFilterChain$1.run(ApplicationFilterChain.java:144) at java.security.AccessController.doPrivileged(Native Method) at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:143) at blackboard.platform.servlet.DevNonceFilter.doFilter(DevNonceFilter.java:68) at sun.reflect.GeneratedMethodAccessor992.invoke(Unknown Source) at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43) at java.lang.reflect.Method.invoke(Method.java:498) at org.apache.catalina.security.SecurityUtil$1.run(SecurityUtil.java:282) at org.apache.catalina.security.SecurityUtil$1.run(SecurityUtil.java:279) at java.security.AccessController.doPrivileged(Native Method) at javax.security.auth.Subject.doAsPrivileged(Subject.java:549) at org.apache.catalina.security.SecurityUtil.execute(SecurityUtil.java:314) at org.apache.catalina.security.SecurityUtil.doAsPrivilege(SecurityUtil.java:253) at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:190) at org.apache.catalina.core.ApplicationFilterChain.access$000(ApplicationFilterChain.java:46) at org.apache.catalina.core.ApplicationFilterChain$1.run(ApplicationFilterChain.java:148) at org.apache.catalina.core.ApplicationFilterChain$1.run(ApplicationFilterChain.java:144) at java.security.AccessController.doPrivileged(Native Method) at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:143) at blackboard.platform.servlet.B2ContextFilter.doFilter(B2ContextFilter.java:137) at sun.reflect.GeneratedMethodAccessor992.invoke(Unknown Source) at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43) at java.lang.reflect.Method.invoke(Method.java:498) at org.apache.catalina.security.SecurityUtil$1.run(SecurityUtil.java:282) at org.apache.catalina.security.SecurityUtil$1.run(SecurityUtil.java:279) at java.security.AccessController.doPrivileged(Native Method) at javax.security.auth.Subject.doAsPrivileged(Subject.java:549) at org.apache.catalina.security.SecurityUtil.execute(SecurityUtil.java:314) at org.apache.catalina.security.SecurityUtil.doAsPrivilege(SecurityUtil.java:253) at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:190) at org.apache.catalina.core.ApplicationFilterChain.access$000(ApplicationFilterChain.java:46) at org.apache.catalina.core.ApplicationFilterChain$1.run(ApplicationFilterChain.java:148) at org.apache.catalina.core.ApplicationFilterChain$1.run(ApplicationFilterChain.java:144) at java.security.AccessController.doPrivileged(Native Method) at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:143) at blackboard.platform.servlet.ContentTypeFilter.doFilter(ContentTypeFilter.java:53) at sun.reflect.GeneratedMethodAccessor992.invoke(Unknown Source) at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43) at java.lang.reflect.Method.invoke(Method.java:498) at org.apache.catalina.security.SecurityUtil$1.run(SecurityUtil.java:282) at org.apache.catalina.security.SecurityUtil$1.run(SecurityUtil.java:279) at java.security.AccessController.doPrivileged(Native Method) at javax.security.auth.Subject.doAsPrivileged(Subject.java:549) at org.apache.catalina.security.SecurityUtil.execute(SecurityUtil.java:314) at org.apache.catalina.security.SecurityUtil.doAsPrivilege(SecurityUtil.java:253) at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:190) at org.apache.catalina.core.ApplicationFilterChain.access$000(ApplicationFilterChain.java:46) at org.apache.catalina.core.ApplicationFilterChain$1.run(ApplicationFilterChain.java:148) at org.apache.catalina.core.ApplicationFilterChain$1.run(ApplicationFilterChain.java:144) at java.security.AccessController.doPrivileged(Native Method) at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:143) at blackboard.platform.servlet.XssServletFilter.doFilter(XssServletFilter.java:48) at sun.reflect.GeneratedMethodAccessor992.invoke(Unknown Source) at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43) at java.lang.reflect.Method.invoke(Method.java:498) at org.apache.catalina.security.SecurityUtil$1.run(SecurityUtil.java:282) at org.apache.catalina.security.SecurityUtil$1.run(SecurityUtil.java:279) at java.security.AccessController.doPrivileged(Native Method) at javax.security.auth.Subject.doAsPrivileged(Subject.java:549) at org.apache.catalina.security.SecurityUtil.execute(SecurityUtil.java:314) at org.apache.catalina.security.SecurityUtil.doAsPrivilege(SecurityUtil.java:253) at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:190) at org.apache.catalina.core.ApplicationFilterChain.access$000(ApplicationFilterChain.java:46) at org.apache.catalina.core.ApplicationFilterChain$1.run(ApplicationFilterChain.java:148) at org.apache.catalina.core.ApplicationFilterChain$1.run(ApplicationFilterChain.java:144) at java.security.AccessController.doPrivileged(Native Method) at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:143) at blackboard.platform.servlet.XssInputValidationFilter.doFilter(XssInputValidationFilter.java:40) at sun.reflect.GeneratedMethodAccessor992.invoke(Unknown Source) at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43) at java.lang.reflect.Method.invoke(Method.java:498) at org.apache.catalina.security.SecurityUtil$1.run(SecurityUtil.java:282) at org.apache.catalina.security.SecurityUtil$1.run(SecurityUtil.java:279) at java.security.AccessController.doPrivileged(Native Method) at javax.security.auth.Subject.doAsPrivileged(Subject.java:549) at org.apache.catalina.security.SecurityUtil.execute(SecurityUtil.java:314) at org.apache.catalina.security.SecurityUtil.doAsPrivilege(SecurityUtil.java:253) at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:190) at org.apache.catalina.core.ApplicationFilterChain.access$000(ApplicationFilterChain.java:46) at org.apache.catalina.core.ApplicationFilterChain$1.run(ApplicationFilterChain.java:148) at org.apache.catalina.core.ApplicationFilterChain$1.run(ApplicationFilterChain.java:144) at java.security.AccessController.doPrivileged(Native Method) at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:143) at blackboard.platform.servlet.ContentIsolationFilter.doFilter(ContentIsolationFilter.java:83) at sun.reflect.GeneratedMethodAccessor992.invoke(Unknown Source) at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43) at java.lang.reflect.Method.invoke(Method.java:498) at org.apache.catalina.security.SecurityUtil$1.run(SecurityUtil.java:282) at org.apache.catalina.security.SecurityUtil$1.run(SecurityUtil.java:279) at java.security.AccessController.doPrivileged(Native Method) at javax.security.auth.Subject.doAsPrivileged(Subject.java:549) at org.apache.catalina.security.SecurityUtil.execute(SecurityUtil.java:314) at org.apache.catalina.security.SecurityUtil.doAsPrivilege(SecurityUtil.java:253) at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:190) at org.apache.catalina.core.ApplicationFilterChain.access$000(ApplicationFilterChain.java:46) at org.apache.catalina.core.ApplicationFilterChain$1.run(ApplicationFilterChain.java:148) at org.apache.catalina.core.ApplicationFilterChain$1.run(ApplicationFilterChain.java:144) at java.security.AccessController.doPrivileged(Native Method) at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:143) at blackboard.platform.servlet.RequestSessionFilter.doFilter(RequestSessionFilter.java:198) at sun.reflect.GeneratedMethodAccessor992.invoke(Unknown Source) at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43) at java.lang.reflect.Method.invoke(Method.java:498) at org.apache.catalina.security.SecurityUtil$1.run(SecurityUtil.java:282) at org.apache.catalina.security.SecurityUtil$1.run(SecurityUtil.java:279) at java.security.AccessController.doPrivileged(Native Method) at javax.security.auth.Subject.doAsPrivileged(Subject.java:549) at org.apache.catalina.security.SecurityUtil.execute(SecurityUtil.java:314) at org.apache.catalina.security.SecurityUtil.doAsPrivilege(SecurityUtil.java:253) at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:190) at org.apache.catalina.core.ApplicationFilterChain.access$000(ApplicationFilterChain.java:46) at org.apache.catalina.core.ApplicationFilterChain$1.run(ApplicationFilterChain.java:148) at org.apache.catalina.core.ApplicationFilterChain$1.run(ApplicationFilterChain.java:144) at java.security.AccessController.doPrivileged(Native Method) at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:143) at blackboard.platform.servlet.RequestSecurityFilter.doFilter(RequestSecurityFilter.java:77) at sun.reflect.GeneratedMethodAccessor992.invoke(Unknown Source) at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43) at java.lang.reflect.Method.invoke(Method.java:498) at org.apache.catalina.security.SecurityUtil$1.run(SecurityUtil.java:282) at org.apache.catalina.security.SecurityUtil$1.run(SecurityUtil.java:279) at java.security.AccessController.doPrivileged(Native Method) at javax.security.auth.Subject.doAsPrivileged(Subject.java:549) at org.apache.catalina.security.SecurityUtil.execute(SecurityUtil.java:314) at org.apache.catalina.security.SecurityUtil.doAsPrivilege(SecurityUtil.java:253) at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:190) at org.apache.catalina.core.ApplicationFilterChain.access$000(ApplicationFilterChain.java:46) at org.apache.catalina.core.ApplicationFilterChain$1.run(ApplicationFilterChain.java:148) at org.apache.catalina.core.ApplicationFilterChain$1.run(ApplicationFilterChain.java:144) at java.security.AccessController.doPrivileged(Native Method) at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:143) at blackboard.platform.servlet.RequestClassParamFilter.doFilter(RequestClassParamFilter.java:42) at sun.reflect.GeneratedMethodAccessor992.invoke(Unknown Source) at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43) at java.lang.reflect.Method.invoke(Method.java:498) at org.apache.catalina.security.SecurityUtil$1.run(SecurityUtil.java:282) at org.apache.catalina.security.SecurityUtil$1.run(SecurityUtil.java:279) at java.security.AccessController.doPrivileged(Native Method) at javax.security.auth.Subject.doAsPrivileged(Subject.java:549) at org.apache.catalina.security.SecurityUtil.execute(SecurityUtil.java:314) at org.apache.catalina.security.SecurityUtil.doAsPrivilege(SecurityUtil.java:253) at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:190) at org.apache.catalina.core.ApplicationFilterChain.access$000(ApplicationFilterChain.java:46) at org.apache.catalina.core.ApplicationFilterChain$1.run(ApplicationFilterChain.java:148) at org.apache.catalina.core.ApplicationFilterChain$1.run(ApplicationFilterChain.java:144) at java.security.AccessController.doPrivileged(Native Method) at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:143) at org.apache.catalina.core.StandardWrapperValve.invoke(StandardWrapperValve.java:198) at org.apache.catalina.core.StandardContextValve.invoke(StandardContextValve.java:108) at org.apache.catalina.core.StandardHostValve.invoke(StandardHostValve.java:140) at org.apache.catalina.valves.ErrorReportValve.invoke(ErrorReportValve.java:79) at org.apache.catalina.valves.StuckThreadDetectionValve.invoke(StuckThreadDetectionValve.java:206) at org.apache.catalina.valves.AbstractAccessLogValve.invoke(AbstractAccessLogValve.java:620) at org.apache.catalina.valves.RemoteIpValve.invoke(RemoteIpValve.java:677) at blackboard.tomcat.valves.LoggingRemoteIpValve.invoke(LoggingRemoteIpValve.java:44) at org.apache.catalina.core.StandardEngineValve.invoke(StandardEngineValve.java:87) at org.apache.catalina.connector.CoyoteAdapter.service(CoyoteAdapter.java:349) at org.apache.coyote.http11.Http11Processor.service(Http11Processor.java:1110) at org.apache.coyote.AbstractProcessorLight.process(AbstractProcessorLight.java:66) at org.apache.coyote.AbstractProtocol$ConnectionHandler.process(AbstractProtocol.java:785) at org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun(NioEndpoint.java:1425) at org.apache.tomcat.util.net.SocketProcessorBase.run(SocketProcessorBase.java:49) at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1142) at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617) at org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:61) at java.lang.Thread.run(Thread.java:745)Caused by: com.fasterxml.jackson.databind.JsonMappingException: could not deserialize Faculty-VCF into a BbEnum (through reference chain: blackboard.webapps.blackboard.publicapi.v1.memberships.MembershipTOPubV1["courseRoleId"]) at com.fasterxml.jackson.databind.JsonMappingException.wrapWithPath(JsonMappingException.java:210) at com.fasterxml.jackson.databind.JsonMappingException.wrapWithPath(JsonMappingException.java:177) at com.fasterxml.jackson.databind.deser.BeanDeserializerBase.wrapAndThrow(BeanDeserializerBase.java:1475) at com.fasterxml.jackson.databind.deser.BeanDeserializer.vanillaDeserialize(BeanDeserializer.java:258) at com.fasterxml.jackson.databind.deser.BeanDeserializer.deserialize(BeanDeserializer.java:125) at com.fasterxml.jackson.databind.ObjectMapper._readMapAndClose(ObjectMapper.java:3702) at com.fasterxml.jackson.databind.ObjectMapper.readValue(ObjectMapper.java:2798) at blackboard.platform.spring.web.json.CustomJsonSupportMethodProcessor$ObjectMapperWrapper.readValue(CustomJsonSupportMethodProcessor.java:104) at org.springframework.http.converter.json.AbstractJackson2HttpMessageConverter.readJavaType(AbstractJackson2HttpMessageConverter.java:221) ... 220 moreCaused by: java.lang.IllegalArgumentException: could not deserialize Faculty-VCF into a BbEnum at blackboard.base.BbEnum.deserialize(BbEnum.java:606) at blackboard.base.BbEnum.access$000(BbEnum.java:51) at blackboard.base.BbEnum$KeyDeserializer.deserializeKey(BbEnum.java:576) at blackboard.platform.restspring.publicapi.v1.common.enums.BbEnumCamelCaseConverter.deserialize(BbEnumCamelCaseConverter.java:78) at blackboard.platform.restspring.publicapi.v1.common.enums.BbEnumCamelCaseConverter.deserialize(BbEnumCamelCaseConverter.java:14) at blackboard.platform.restspring.publicapi.v1.common.enums.CamelCaseEnumConverter$EnumDeserializer.deserialize(CamelCaseEnumConverter.java:100) at com.fasterxml.jackson.databind.deser.SettableBeanProperty.deserialize(SettableBeanProperty.java:520) at com.fasterxml.jackson.databind.deser.impl.MethodProperty.deserializeAndSet(MethodProperty.java:95) at com.fasterxml.jackson.databind.deser.BeanDeserializer.vanillaDeserialize(BeanDeserializer.java:256) ... 225 more2017-05-10 13:59:33 -0400 - Error loading session - blackboard.platform.BbServiceException: Session id not found. at blackboard.platform.session.impl.BbSessionManagerServiceImpl.findSessionHash(BbSessionManagerServiceImpl.java:520) at blackboard.platform.session.impl.BbSessionManagerServiceImpl.loadSession(BbSessionManagerServiceImpl.java:368) at blackboard.platform.session.impl.BbSessionManagerServiceImpl.getSession(BbSessionManagerServiceImpl.java:125) at blackboard.platform.context.impl.ContextImpl.resolveSessionData(ContextImpl.java:491) at blackboard.platform.context.impl.ContextImpl.getSession(ContextImpl.java:1304) at blackboard.platform.context.impl.ContextImpl.getUserId(ContextImpl.java:1052) at blackboard.platform.context.impl.ContextImpl.isEqual(ContextImpl.java:283) at blackboard.platform.context.impl.ContextImpl.equals(ContextImpl.java:272) at blackboard.platform.context.impl.ContextManagerServerImpl.setContext(ContextManagerServerImpl.java:174) at blackboard.platform.context.impl.ContextManagerServerImpl.setContext(ContextManagerServerImpl.java:225) at blackboard.platform.servlet.RequestSessionFilter.initRequestContext(RequestSessionFilter.java:333) at blackboard.platform.servlet.RequestSessionFilter.doFilter(RequestSessionFilter.java:173) at sun.reflect.GeneratedMethodAccessor992.invoke(Unknown Source) at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43) at java.lang.reflect.Method.invoke(Method.java:498) at org.apache.catalina.security.SecurityUtil$1.run(SecurityUtil.java:282) at org.apache.catalina.security.SecurityUtil$1.run(SecurityUtil.java:279) at java.security.AccessController.doPrivileged(Native Method) at javax.security.auth.Subject.doAsPrivileged(Subject.java:549) at org.apache.catalina.security.SecurityUtil.execute(SecurityUtil.java:314) at org.apache.catalina.security.SecurityUtil.doAsPrivilege(SecurityUtil.java:253) at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:190) at org.apache.catalina.core.ApplicationFilterChain.access$000(ApplicationFilterChain.java:46) at org.apache.catalina.core.ApplicationFilterChain$1.run(ApplicationFilterChain.java:148) at org.apache.catalina.core.ApplicationFilterChain$1.run(ApplicationFilterChain.java:144) at java.security.AccessController.doPrivileged(Native Method) at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:143) at blackboard.platform.servlet.RequestSecurityFilter.doFilter(RequestSecurityFilter.java:77) at sun.reflect.GeneratedMethodAccessor992.invoke(Unknown Source) at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43) at java.lang.reflect.Method.invoke(Method.java:498) at org.apache.catalina.security.SecurityUtil$1.run(SecurityUtil.java:282) at org.apache.catalina.security.SecurityUtil$1.run(SecurityUtil.java:279) at java.security.AccessController.doPrivileged(Native Method) at javax.security.auth.Subject.doAsPrivileged(Subject.java:549) at org.apache.catalina.security.SecurityUtil.execute(SecurityUtil.java:314) at org.apache.catalina.security.SecurityUtil.doAsPrivilege(SecurityUtil.java:253) at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:190) at org.apache.catalina.core.ApplicationFilterChain.access$000(ApplicationFilterChain.java:46) at org.apache.catalina.core.ApplicationFilterChain$1.run(ApplicationFilterChain.java:148) at org.apache.catalina.core.ApplicationFilterChain$1.run(ApplicationFilterChain.java:144) at java.security.AccessController.doPrivileged(Native Method) at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:143) at blackboard.platform.servlet.RequestClassParamFilter.doFilter(RequestClassParamFilter.java:42) at sun.reflect.GeneratedMethodAccessor992.invoke(Unknown Source) at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43) at java.lang.reflect.Method.invoke(Method.java:498) at org.apache.catalina.security.SecurityUtil$1.run(SecurityUtil.java:282) at org.apache.catalina.security.SecurityUtil$1.run(SecurityUtil.java:279) at java.security.AccessController.doPrivileged(Native Method) at javax.security.auth.Subject.doAsPrivileged(Subject.java:549) at org.apache.catalina.security.SecurityUtil.execute(SecurityUtil.java:314) at org.apache.catalina.security.SecurityUtil.doAsPrivilege(SecurityUtil.java:253) at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:190) at org.apache.catalina.core.ApplicationFilterChain.access$000(ApplicationFilterChain.java:46) at org.apache.catalina.core.ApplicationFilterChain$1.run(ApplicationFilterChain.java:148) at org.apache.catalina.core.ApplicationFilterChain$1.run(ApplicationFilterChain.java:144) at java.security.AccessController.doPrivileged(Native Method) at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:143) at org.apache.catalina.core.StandardWrapperValve.invoke(StandardWrapperValve.java:198) at org.apache.catalina.core.StandardContextValve.invoke(StandardContextValve.java:108) at blackboard.webapps.blackboard.plugin.web.PluginsRequestRedirectValve.invoke(PluginsRequestRedirectValve.java:63) at blackboard.webapps.blackboard.blog.web.BlogRequestRedirectValve.invoke(BlogRequestRedirectValve.java:63) at blackboard.plugin.assignment.util.RequestRedirectValve.invoke(RequestRedirectValve.java:65) at org.apache.catalina.core.StandardHostValve.invoke(StandardHostValve.java:140) at org.apache.catalina.valves.ErrorReportValve.invoke(ErrorReportValve.java:79) at org.apache.catalina.valves.StuckThreadDetectionValve.invoke(StuckThreadDetectionValve.java:206) at org.apache.catalina.valves.AbstractAccessLogValve.invoke(AbstractAccessLogValve.java:620) at org.apache.catalina.valves.RemoteIpValve.invoke(RemoteIpValve.java:677) at blackboard.tomcat.valves.LoggingRemoteIpValve.invoke(LoggingRemoteIpValve.java:44) at org.apache.catalina.core.StandardEngineValve.invoke(StandardEngineValve.java:87) at org.apache.catalina.connector.CoyoteAdapter.service(CoyoteAdapter.java:349) at org.apache.coyote.http11.Http11Processor.service(Http11Processor.java:1110) at org.apache.coyote.AbstractProcessorLight.process(AbstractProcessorLight.java:66) at org.apache.coyote.AbstractProtocol$ConnectionHandler.process(AbstractProtocol.java:785) at org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun(NioEndpoint.java:1425) at org.apache.tomcat.util.net.SocketProcessorBase.run(SocketProcessorBase.java:49) at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1142) at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617) at org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:61) at java.lang.Thread.run(Thread.java:745)
+
+
+
+
+2:06 PM
+Also. the error is not being affected the hyphen but, I believe, the logic in supplying the custom role in general. I did a test in staging by removing the hyphen and the error still remains.
+2:11 PM
+Mark O'Neil
+Mark O'Neil
+Please try [{ "userId": "bbafacilitator", "courseId": "LOR-CC-mbechtel", "courseRoleId": "Faculty-VC" }]
+2:25 PM
+Michael Bechtel
+You
+Same, that test was a typo that I sent you , but just another test and issue still remains.
+2:39 PM
+Ahh, man, can't type to day! Same thing, the info I sent you had typos in the data. I just did another test with the correct data and the result is still same.
+2:41 PM
+Another test by removing the the hyphen: 
+
+{"status": 400, "extraInfo": "693f21eb701c4365a2a43c5826a4447a", "message": "Could not read document: could not deserialize FacultyVC into a BbEnum (through reference chain: 1.memberships.MembershipTOPubV1[\"courseRoleId\"]); nested exception is : could not deserialize FacultyVC into a BbEnum (through reference chain: 1.memberships.MembershipTOPubV1[\"courseRoleId\"])"}
+2:43 PM
+Mark O'Neil
+Mark O'Neil
+Okay - I have updated the ticket.
+ 
+Cheers,
+-m
+ 
+Mark O'Neil
+Senior Product Manager, Developer Platform and REST APIs
+Product Management
+Blackboard Inc.
+T: 603-287-1836
+ 
+Quick Links:
+Developer Platform<https://developer.blackboard.com/>
+Developer Community<https://community.blackboard.com/community/developers>
+DevCon New Orleans<http://bbworld.com/devcon/>
+2:50 PM
+Michael Bechtel
+You
+Awesome. Off to find more stuffs.
+3:36 PM
+FRIDAY, MAY 12, 2017Mark O'Neil
+Mark O'Neil
+Michael,
+
+I created a ticket and the engineer looking at it cannot replicate the issue. He has tested on 3100.0-.4 (and older) versions with no errors, has looked at our code line and cannot find any changes that would have "fixed" the issue. The only thing he can suggest is that you "named" the role one thing, but gave it a different role id… but I think we have covered that already.  Basically as crappy as it sounds at this point is that he can't do much else in the way of triage w/o learn admin access.
+
+Can you provide the smallest test code to produce the error and share? Maybe that will provide some insight?
+
+Hope you have a swell weekend.
+
+cheers,
+-m
+3:37 PM
+Typos... in the above thread we have "Faculty-VCF", "Faculty-VC", and "FacultyVC" - the test resultJSON only references "FacultyVC" and "Faculty-VCF" ... did you try "Faculty-VC"?
+3:41 PM
+MONDAY, MAY 15, 2017Michael Bechtel
+You
+Sure, I need to update the Github project anyway because of the "batch" feature. I will submit here a recorded example as well. The reason for the different ids, is I was testing against the possible bug on hyphens in the name for that field. The issue is not due to the hyphen I have found out, but the fact I cannot use a custom role at all.  Faculty-VC was the original and first role id I used. I will update you shortly.
+7:27 AM
+I just updated my github project:   GitHub - elmiguel/BBDN-REST-DEMO_Python: A Python...   the full code can be looked at over there, you can even run it.
+
+my example:
+command : 
+$ clear;python ./bbrestapi.py memberships -m patch -B -t externalId -f test_data/CM-20173.json >> json_data/CM-2013-Results.json -v
+
+CM-20173.json located in the test_data folder:
+[{ "userId": "bbafacilitator", "courseId": "LOR-CC-mbechtel", "courseRoleId": "Faculty-VC" }]
+
+
+output from the console will be dumed into json_data/CM-20173-Results.json
+
+
+just ran that test again with using Faculty-VC, here the output:
+
+{'courseId': 'LOR-CC-mbechtel', 'courseRoleId': 'Faculty-VC', 'userId': 'bbafacilitator'}
+['externalId']
+externalId
+Info: primaryId (id) was supplied in data file.Data from update: <class 'dict'> {"courseId": "LOR-CC-mbechtel", "courseRoleId": "Faculty-VC", "userId": "bbafacilitator"}
+[Membership] update called
+[prep_url():memberships] called
+https://irscstaging.blackboard.com/learn/api/public/v1/courses/externalId:LOR-CC-mbechtel/users
+['externalId'] bbafacilitator
+https://irscstaging.blackboard.com/learn/api/public/v1/courses/externalId:LOR-CC-mbechtel/users/externalId:bbafacilitator
+https://irscstaging.blackboard.com/learn/api/public/v1/courses/externalId:LOR-CC-mbechtel/users/externalId:bbafacilitator
+https://irscstaging.blackboard.com/learn/api/public/v1/courses/externalId:LOR-CC-mbechtel/users/externalId:bbafacilitator
+[Membership:do_rest()] Called[Membership:do_rest()] method=patch, url=https://irscstaging.blackboard.com/learn/api/public/v1/courses/externalId:LOR-CC-mbechtel/users/externalId:bbafacilitator, data=[{'courseId': 'LOR-CC-mbechtel', 'courseRoleId': 'Faculty-VC', 'userId': 'bbafacilitator'}]
+Prepared Request: 
+https://irscstaging.blackboard.com/learn/api/public/v1/courses/externalId:LOR-CC-mbechtel/users/externalId:bbafacilitator?limit=10&offset=0&fields=externalId%2Cavailability[Membership:patch()] 
+PATCH Request URL: https://irscstaging.blackboard.com/learn/api/public/v1/courses/externalId:LOR-CC-mbechtel/users/externalId:bbafacilitator
+[Membership:patch()] STATUS CODE: 400
+[Membership:patch()] RESPONSE:
+{"status": 400, "message": "Could not read document: could not deserialize Faculty-VC into a BbEnum (through reference chain: 1.memberships.MembershipTOPubV1[\"courseRoleId\"]); nested exception is : could not deserialize Faculty-VC into a BbEnum (through reference chain: 1.memberships.MembershipTOPubV1[\"courseRoleId\"])", "extraInfo": "c440240db02545f5aaed68726ff4eaae"}"
+
+{\"status\": 400, \"message\": \"Could not read document: could not deserialize Faculty-VC into a BbEnum (through reference chain: 1.memberships.MembershipTOPubV1[\\\"courseRoleId\\\"]); nested exception is : could not deserialize Faculty-VC into a BbEnum (through reference chain: 1.memberships.MembershipTOPubV1[\\\"courseRoleId\\\"])\", \"extraInfo\": \"c440240db02545f5aaed68726ff4eaae\"}"
+
+{"status": 400, "message": "Could not read document: could not deserialize Faculty-VC into a BbEnum (through reference chain: 1.memberships.MembershipTOPubV1[\"courseRoleId\"]); nested exception is : could not deserialize Faculty-VC into a BbEnum (through reference chain: 1.memberships.MembershipTOPubV1[\"courseRoleId\"])", "extraInfo": "c440240db02545f5aaed68726ff4eaae"}
+
+7:50 AM
+side note request: Messages to Allow Code snippets like you can do in Slack!! ;p
+7:51 AM
+Mark O'Neil
+Mark O'Neil
+At a loss re the hyphenated Facult role. Do other hyphenated roles succeed?
+ 
+Perhaps a workaround, dropping the hyphen, is the option at this point.
+ 
+Cheers,
+-m
+ 
+Mark O'Neil
+Senior Product Manager, Developer Platform and REST APIs
+Product Management
+Blackboard Inc.
+T: 603-287-1836
+ 
+Quick Links:
+Developer Platform<https://developer.blackboard.com/>
+Developer Community<https://community.blackboard.com/community/developers>
+DevCon New Orleans<http://bbworld.com/devcon/>
+9:35 AM
+Michael Bechtel
+You
+This is a lengthy one, please read through as I have notes throughout the tests.
+
+
+Dropping the hyphen does not work, the error is still the same as if you cannot use a custom role for that method. Nor can you modify roles to the PATCH method after initial creation.
+
+
+Tested "VC Faculty":
+
+{"extraInfo": "f4aa4901ba404e2abff537ff0d14477d", "status": 400, "message": "Could not read document: could not deserialize VC Faculty into a BbEnum (through reference chain: 1.memberships.MembershipTOPubV1[\"courseRoleId\"]); nested exception is : could not deserialize VC Faculty into a BbEnum (through reference chain: 1.memberships.MembershipTOPubV1[\"courseRoleId\"])"}
+
+Tested "VCFaculty" -- same error as above but with VCFaculty instead (per-mutated the tests as well)
+
+BbSide -> Data sent
+"VC Faculty" -> "VC Faculty"
+"VC Faculty" -> "VCFaculty" notice that space is intentionally left out (like Teaching Assistant but TeachingAssistant in the docs )
+"VCFaculty" -> "VC Faculty"
+"VCFaculty" -> "VCFaculty"
+
+
+When you try to send the identifier (VCI in this test) :
+url=https://irscstaging.blackboard.com/learn/api/public/v1/courses/externalId:LOR-CC-mbechtel/users/userName:bbafacilitator, data=[{'courseId': 'LOR-CC-mbechtel', 'userId': 'bbafacilitator', 'courseRoleId': 'VCI'}]
+
+
+{"message": "Fields may not be changed after creation: [userId, courseId]", "status": 403}
+
+This role was not created with the hyphen to avoid the possibility of error in original creation vs. modification. 
+
+
+Another example of a custom role that never had a hyphen in the name: Course Copier
+result:
+
+Sent as: Course Copier
+{"message": "Could not read document: could not deserialize Course Copier into a BbEnum (through reference chain: 1.memberships.MembershipTOPubV1[\"courseRoleId\"]); nested exception is : could not deserialize Course Copier into a BbEnum (through reference chain: 1.memberships.MembershipTOPubV1[\"courseRoleId\"])", "status": 400, "extraInfo": "cfe113ece70a49a2b8e2042fbbeb7ec2"}
+
+
+Sent as CourseCopier with leaving it as Course Copier in Bb:
+{"extraInfo": "e19cb8032259437c962c7488c4968a42", "status": 400, "message": "Could not read document: could not deserialize CourseCopier into a BbEnum (through reference chain: 1.memberships.MembershipTOPubV1[\"courseRoleId\"]); nested exception is : could not deserialize CourseCopier into a BbEnum (through reference chain: 1.memberships.MembershipTOPubV1[\"courseRoleId\"])"}
+
+When trying to send the identifier instead of the name:
+url=https://irscstaging.blackboard.com/learn/api/public/v1/courses/externalId:LOR-CC-mbechtel/users/userName:bbafacilitator, data=[{'courseRoleId': 'CC', 'courseId': 'LOR-CC-mbechtel', 'userId': 'bbafacilitator'}]
+
+{"status": 403, "message": "Fields may not be changed after creation: [userId, courseId]"}
+
+
+When I sent it up with: Instructor:
+url=https://irscstaging.blackboard.com/learn/api/public/v1/courses/externalId:LOR-CC-mbechtel/users/userName:bbafacilitator, data=[{'userId': 'bbafacilitator', 'courseId': 'LOR-CC-mbechtel', 'courseRoleId': 'Instructor'}]
+
+{"status": 403, "message": "Fields may not be changed after creation: [userId, courseId]"}
+
+Same goes for Student:
+url=https://irscstaging.blackboard.com/learn/api/public/v1/courses/externalId:LOR-CC-mbechtel/users/userName:bbafacilitator, data=[{'userId': 'bbafacilitator', 'courseId': 'LOR-CC-mbechtel', 'courseRoleId': 'Student'}]
+
+{"status": 403, "message": "Fields may not be changed after creation: [userId, courseId]"}
+
+Now, if I delete the user from the Course and send up the data:
+
+As Faculty-VC (same as Bb side)
+[Membership:do_rest()] method=put, url=https://irscstaging.blackboard.com/learn/api/public/v1/courses/externalId:LOR-CC-mbechtel/users/userName:bbafacilitator, data=[{'courseId': 'LOR-CC-mbechtel', 'courseRoleId': 'Faculty-VC'}]
+{"extraInfo": "ee51e6b81f4440399527795a0c3be990", "message": "Could not read document: could not deserialize Faculty-VC into a BbEnum (through reference chain: 1.memberships.MembershipTOPubV1[\"courseRoleId\"]); nested exception is : could not deserialize Faculty-VC into a BbEnum (through reference chain: 1.memberships.MembershipTOPubV1[\"courseRoleId\"])", "status": 400}
+
+As FacultyVC (Faculty-VC in Bb):
+[Membership:do_rest()] method=put, url=https://irscstaging.blackboard.com/learn/api/public/v1/courses/externalId:LOR-CC-mbechtel/users/userName:bbafacilitator, data=[{'courseId': 'LOR-CC-mbechtel', 'courseRoleId': 'FacultyVC'}]
+{"message": "Could not read document: could not deserialize FacultyVC into a BbEnum (through reference chain: 1.memberships.MembershipTOPubV1[\"courseRoleId\"]); nested exception is : could not deserialize FacultyVC into a BbEnum (through reference chain: 1.memberships.MembershipTOPubV1[\"courseRoleId\"])", "status": 400, "extraInfo": "0fe3552608db4f558aea026aeed6cbb4"}
+
+Now as FacultyVC on Bb Side:
+[Membership:do_rest()] method=put, url=https://irscstaging.blackboard.com/learn/api/public/v1/courses/externalId:LOR-CC-mbechtel/users/userName:bbafacilitator, data=[{'courseId': 'LOR-CC-mbechtel', 'courseRoleId': 'FacultyVC'}]
+{"status": 400, "extraInfo": "7f8763530dbe434ab1568b535aefb795", "message": "Could not read document: could not deserialize FacultyVC into a BbEnum (through reference chain: 1.memberships.MembershipTOPubV1[\"courseRoleId\"]); nested exception is : could not deserialize FacultyVC into a BbEnum (through reference chain: 1.memberships.MembershipTOPubV1[\"courseRoleId\"])"}
+
+AS identifier VCF:
+[Membership:do_rest()] method=put, url=https://irscstaging.blackboard.com/learn/api/public/v1/courses/externalId:LOR-CC-mbechtel/users/userName:bbafacilitator, data=[{'courseRoleId': 'VCF', 'courseId': 'LOR-CC-mbechtel'}]
+{"availability": {"available": "Yes"}}
+
+As Student:
+[Membership:do_rest()] method=put, url=https://irscstaging.blackboard.com/learn/api/public/v1/courses/externalId:LOR-CC-mbechtel/users/userName:bbafacilitator, data=[{'courseRoleId': 'Student', 'courseId': 'LOR-CC-mbechtel'}]
+{"availability": {"available": "Yes"}}
+
+
+So it seems like you can ONLY use identifiers for custom roles (this breaks the pattern noted in the docs; even with the default roles as the identifier for those role are P,S,U etc)
+
+Now a test, from after sending up as the VCF identifier, to now "Student":
+url=https://irscstaging.blackboard.com/learn/api/public/v1/courses/externalId:LOR-CC-mbechtel/users/userName:bbafacilitator, data=[{'courseRoleId': 'Student', 'courseId': 'LOR-CC-mbechtel', 'userId': 'bbafacilitator'}]
+Prepared Request:
+{"status": 403, "message": "Fields may not be changed after creation: [userId, courseId]"}
+
+and as "S":
+url=https://irscstaging.blackboard.com/learn/api/public/v1/courses/externalId:LOR-CC-mbechtel/users/userName:bbafacilitator, data=[{'userId': 'bbafacilitator', 'courseRoleId': 'S', 'courseId': 'LOR-CC-mbechtel'}]
+{"status": 403, "message": "Fields may not be changed after creation: [userId, courseId]"}
+
+10:35 AM
+Mark O'Neil
+Mark O'Neil
+Michael,
+ 
+Could you please file a support ticket on this? That will get our support organization involved in tracking down the issue.
+ 
+Thank you.
+ 
+Cheers,
+-m
+ 
+Mark O'Neil
+Senior Product Manager, Developer Platform and REST APIs
+Product Management
+Blackboard Inc.
+T: 603-287-1836
+ 
+Quick Links:
+Developer Platform<https://developer.blackboard.com/>
+Developer Community<https://community.blackboard.com/community/developers>
+DevCon New Orleans<http://bbworld.com/devcon/>

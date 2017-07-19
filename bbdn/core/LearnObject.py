@@ -128,7 +128,8 @@ class LearnObject:
         try:
             if self.batch:
                 if self.verbose:
-                    print("Data from create:", type(self.data), json.loads(self.data))
+                    # print("Data from create:", type(self.data), json.loads(self.data))
+                    print("Data from create:", type(self.data), self.data)
 
                 for item in self.data:
                     if self.debug or self.verbose:

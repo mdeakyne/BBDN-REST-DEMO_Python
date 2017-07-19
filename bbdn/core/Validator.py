@@ -158,8 +158,8 @@ MembershipSchema = Schema({
     Optional("availability"): {
         Optional("available"): And(str, Use(str.title), lambda s: s in ['Yes', 'No'])
     },
-    Optional("courseRoleId"): And(str, lambda s: s in ["Instructor", "Faculty-VC", "TeachingAssistant", "CourseBuilder",
-                                                       "Grader", "Student", "Guest"])
+    Optional("courseRoleId"): And(str, lambda s: s in ["Instructor", "FacultyVC", "VCF", "TeachingAssistant", "CourseBuilder",
+                                                       "Grader", "Student", "S", "Guest"])
 })
 
 SystemSchema = Schema({
