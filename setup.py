@@ -4,7 +4,7 @@ setup(
     name='bbdn-rest',
     version='0.0.1',
     packages=['bbdn', 'bbdn.core'],
-    url='https://github.com/elmiguel/bbdn-rest',
+    url='git@github.com:elmiguel/BBDN-REST-DEMO_Python.git',
     license='',
     author='Michael Bechtel',
     author_email='mbechtel@irsc.edu',
