@@ -92,7 +92,7 @@ Usage:
     bbrestapi courses [COURSE-ID CHILD-COURSE-ID] [options]
     bbrestapi contents COURSE-ID [CONTENT-ID] [options]
     bbrestapi groups COURSE-ID [CONTENT-ID GROUP-ID USER-ID] [options]
-    bbrestapi memberships COURSE-ID [USER-ID] [options]
+    bbrestapi memberships [COURSE-ID [USER-ID]] [options]
     bbrestapi grades COURSE-ID [COLUMN-ID ATTEMPTS-ID USER-ID] [options]
     bbrestapi users [USER-ID] [options]
     bbrestapi datasources [DATA-SOURCE-ID] [options]
@@ -155,6 +155,7 @@ Options:
                                             the defaults will be overwritten.
                                     [default: None]
     -f <file>..., --file <file>...  Data used in post, put, patch methods, but using a file or a list of files. Overrides --data. [default: None]
+    -B, --batch                     If set, the <file> (single path), will process each line during the API request. [default: false]
     -D, --debug                     Turn on debug mode. [default: False]
     -P <page>, --get-page <page>    Accepts the pagination value returned from a previous request.
                                     If set, then all ids, types, params are ignored. As they are

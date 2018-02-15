@@ -1,0 +1,128 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.8	//
+And	../bbdn/core/Validator.py	/^from schema import Schema, And, Use, Optional, Regex$/;"	kind:namespace	line:1
+AnnouncementSchema	../bbdn/core/LearnObject.py	/^from bbdn.core.Validator import AnnouncementSchema, UserSchema, CourseSchema, ContentsSchema, DataSourceSchema, TermSchema, MembershipSchema, GradebookColumnSchema, SystemSchema$/;"	kind:namespace	line:30
+AnnouncementSchema	../bbdn/core/Validator.py	/^AnnouncementSchema = Schema({$/;"	kind:variable	line:5
+Auth.py	../bbdn/core/Auth.py	1;"	kind:file	line:1
+AuthToken	../bbdn/core/Auth.py	/^class AuthToken:$/;"	kind:class	line:58
+AuthToken	../bbrestapi.py	/^from bbdn.core.Auth import AuthToken$/;"	kind:namespace	line:3
+AuthToken	../old_code/bbrestapi0.py	/^from bbdn.core.Auth import AuthToken$/;"	kind:namespace	line:30
+ContentsSchema	../bbdn/core/LearnObject.py	/^from bbdn.core.Validator import AnnouncementSchema, UserSchema, CourseSchema, ContentsSchema, DataSourceSchema, TermSchema, MembershipSchema, GradebookColumnSchema, SystemSchema$/;"	kind:namespace	line:30
+ContentsSchema	../bbdn/core/Validator.py	/^ContentsSchema = Schema({$/;"	kind:variable	line:112
+ContentsSchema	../old_code/LearnObject0.py	/^from bbdn.core.Validator import UserSchema, CourseSchema, ContentsSchema, DataSourceSchema, TermSchema, MembershipSchema, GradebookColumnSchema, SystemSchema$/;"	kind:namespace	line:30
+CourseSchema	../bbdn/core/LearnObject.py	/^from bbdn.core.Validator import AnnouncementSchema, UserSchema, CourseSchema, ContentsSchema, DataSourceSchema, TermSchema, MembershipSchema, GradebookColumnSchema, SystemSchema$/;"	kind:namespace	line:30
+CourseSchema	../bbdn/core/Validator.py	/^CourseSchema = Schema({$/;"	kind:variable	line:76
+CourseSchema	../old_code/LearnObject0.py	/^from bbdn.core.Validator import UserSchema, CourseSchema, ContentsSchema, DataSourceSchema, TermSchema, MembershipSchema, GradebookColumnSchema, SystemSchema$/;"	kind:namespace	line:30
+DataSourceSchema	../bbdn/core/LearnObject.py	/^from bbdn.core.Validator import AnnouncementSchema, UserSchema, CourseSchema, ContentsSchema, DataSourceSchema, TermSchema, MembershipSchema, GradebookColumnSchema, SystemSchema$/;"	kind:namespace	line:30
+DataSourceSchema	../bbdn/core/Validator.py	/^DataSourceSchema = Schema({$/;"	kind:variable	line:130
+DataSourceSchema	../old_code/LearnObject0.py	/^from bbdn.core.Validator import UserSchema, CourseSchema, ContentsSchema, DataSourceSchema, TermSchema, MembershipSchema, GradebookColumnSchema, SystemSchema$/;"	kind:namespace	line:30
+GradebookColumnSchema	../bbdn/core/LearnObject.py	/^from bbdn.core.Validator import AnnouncementSchema, UserSchema, CourseSchema, ContentsSchema, DataSourceSchema, TermSchema, MembershipSchema, GradebookColumnSchema, SystemSchema$/;"	kind:namespace	line:30
+GradebookColumnSchema	../bbdn/core/Validator.py	/^GradebookColumnSchema = Schema({$/;"	kind:variable	line:174
+GradebookColumnSchema	../old_code/LearnObject0.py	/^from bbdn.core.Validator import UserSchema, CourseSchema, ContentsSchema, DataSourceSchema, TermSchema, MembershipSchema, GradebookColumnSchema, SystemSchema$/;"	kind:namespace	line:30
+HTTPAdapter	../bbdn/core/Auth.py	/^from requests.adapters import HTTPAdapter$/;"	kind:namespace	line:29
+LEARN_OBJECTS	../old_code/bbrestapi0.py	/^LEARN_OBJECTS = ['user', 'course', 'term', 'membership', 'datasource', 'content', 'system', 'grade']$/;"	kind:variable	line:34
+LearnObject	../bbdn/core/LearnObject.py	/^class LearnObject:$/;"	kind:class	line:48
+LearnObject	../bbrestapi.py	/^from bbdn.core.LearnObject import LearnObject$/;"	kind:namespace	line:4
+LearnObject	../old_code/LearnObject0.py	/^class LearnObject:$/;"	kind:class	line:46
+LearnObject	../old_code/bbrestapi0.py	/^from bbdn.core.LearnObject import LearnObject$/;"	kind:namespace	line:31
+LearnObject.py	../bbdn/core/LearnObject.py	1;"	kind:file	line:1
+LearnObject0.py	../old_code/LearnObject0.py	1;"	kind:file	line:1
+MembershipSchema	../bbdn/core/LearnObject.py	/^from bbdn.core.Validator import AnnouncementSchema, UserSchema, CourseSchema, ContentsSchema, DataSourceSchema, TermSchema, MembershipSchema, GradebookColumnSchema, SystemSchema$/;"	kind:namespace	line:30
+MembershipSchema	../bbdn/core/Validator.py	/^MembershipSchema = Schema({$/;"	kind:variable	line:151
+MembershipSchema	../old_code/LearnObject0.py	/^from bbdn.core.Validator import UserSchema, CourseSchema, ContentsSchema, DataSourceSchema, TermSchema, MembershipSchema, GradebookColumnSchema, SystemSchema$/;"	kind:namespace	line:30
+Optional	../bbdn/core/Validator.py	/^from schema import Schema, And, Use, Optional, Regex$/;"	kind:namespace	line:1
+PAGINATION	../settings.py	/^PAGINATION = 10$/;"	kind:variable	line:1
+PAGINATION	../settings_backup.py	/^PAGINATION = 10$/;"	kind:variable	line:1
+PoolManager	../bbdn/core/Auth.py	/^from requests.packages.urllib3.poolmanager import PoolManager$/;"	kind:namespace	line:30
+Regex	../bbdn/core/Validator.py	/^from schema import Schema, And, Use, Optional, Regex$/;"	kind:namespace	line:1
+Schema	../bbdn/core/Validator.py	/^from schema import Schema, And, Use, Optional, Regex$/;"	kind:namespace	line:1
+SchemaError	../bbdn/core/LearnObject.py	/^from schema import SchemaError$/;"	kind:namespace	line:32
+SchemaError	../old_code/LearnObject0.py	/^from schema import SchemaError$/;"	kind:namespace	line:32
+SystemSchema	../bbdn/core/LearnObject.py	/^from bbdn.core.Validator import AnnouncementSchema, UserSchema, CourseSchema, ContentsSchema, DataSourceSchema, TermSchema, MembershipSchema, GradebookColumnSchema, SystemSchema$/;"	kind:namespace	line:30
+SystemSchema	../bbdn/core/Validator.py	/^SystemSchema = Schema({$/;"	kind:variable	line:165
+SystemSchema	../old_code/LearnObject0.py	/^from bbdn.core.Validator import UserSchema, CourseSchema, ContentsSchema, DataSourceSchema, TermSchema, MembershipSchema, GradebookColumnSchema, SystemSchema$/;"	kind:namespace	line:30
+TermSchema	../bbdn/core/LearnObject.py	/^from bbdn.core.Validator import AnnouncementSchema, UserSchema, CourseSchema, ContentsSchema, DataSourceSchema, TermSchema, MembershipSchema, GradebookColumnSchema, SystemSchema$/;"	kind:namespace	line:30
+TermSchema	../bbdn/core/Validator.py	/^TermSchema = Schema({$/;"	kind:variable	line:135
+TermSchema	../old_code/LearnObject0.py	/^from bbdn.core.Validator import UserSchema, CourseSchema, ContentsSchema, DataSourceSchema, TermSchema, MembershipSchema, GradebookColumnSchema, SystemSchema$/;"	kind:namespace	line:30
+Tls1Adapter	../bbdn/core/Auth.py	/^class Tls1Adapter(HTTPAdapter):$/;"	kind:class	line:41
+Tls1Adapter	../bbdn/core/LearnObject.py	/^from bbdn.core.Auth import Tls1Adapter$/;"	kind:namespace	line:29
+Tls1Adapter	../old_code/LearnObject0.py	/^from bbdn.core.Auth import Tls1Adapter$/;"	kind:namespace	line:29
+Use	../bbdn/core/Validator.py	/^from schema import Schema, And, Use, Optional, Regex$/;"	kind:namespace	line:1
+UserSchema	../bbdn/core/LearnObject.py	/^from bbdn.core.Validator import AnnouncementSchema, UserSchema, CourseSchema, ContentsSchema, DataSourceSchema, TermSchema, MembershipSchema, GradebookColumnSchema, SystemSchema$/;"	kind:namespace	line:30
+UserSchema	../bbdn/core/Validator.py	/^UserSchema = Schema({$/;"	kind:variable	line:21
+UserSchema	../old_code/LearnObject0.py	/^from bbdn.core.Validator import UserSchema, CourseSchema, ContentsSchema, DataSourceSchema, TermSchema, MembershipSchema, GradebookColumnSchema, SystemSchema$/;"	kind:namespace	line:30
+Validator.py	../bbdn/core/Validator.py	1;"	kind:file	line:1
+__init__	../bbdn/core/Auth.py	/^    def __init__(self):$/;"	kind:member	line:43
+__init__	../bbdn/core/Auth.py	/^    def __init__(self, verbose=False):$/;"	kind:member	line:60
+__init__	../bbdn/core/LearnObject.py	/^    def __init__(self, options):$/;"	kind:member	line:50
+__init__	../old_code/LearnObject0.py	/^    def __init__(self, class_name, verbose=False, debug=False):$/;"	kind:member	line:48
+__init__.py	../bbdn/__init__.py	1;"	kind:file	line:1
+__init__.py	../bbdn/core/__init__.py	1;"	kind:file	line:1
+api	../bbrestapi.py	/^def api():$/;"	kind:function	line:86
+api	../old_code/bbrestapi0.py	/^def api(opts):$/;"	kind:function	line:117
+author	../setup.py	/^    author='Michael Bechtel',$/;"	kind:variable	line:9
+author_email	../setup.py	/^    author_email='mbechtel@irsc.edu',$/;"	kind:variable	line:10
+bbrestapi.py	../bbrestapi.py	1;"	kind:file	line:1
+bbrestapi0.py	../old_code/bbrestapi0.py	1;"	kind:file	line:1
+config	../settings.py	/^config = {$/;"	kind:variable	line:2
+config	../settings_backup.py	/^config = {$/;"	kind:variable	line:2
+create	../bbdn/core/LearnObject.py	/^    def create(self):$/;"	kind:member	line:127
+create	../old_code/LearnObject0.py	/^    def create(self, data=None):$/;"	kind:member	line:70
+date_handler	../bbdn/core/Auth.py	/^    def date_handler(self, obj):$/;"	kind:member	line:71
+date_handler	../bbdn/core/LearnObject.py	/^    def date_handler(obj):$/;"	kind:member	line:121
+date_handler	../old_code/LearnObject0.py	/^    def date_handler(obj):$/;"	kind:member	line:64
+date_pattern	../bbdn/core/Validator.py	/^date_pattern = r'^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}Z$'$/;"	kind:variable	line:3
+datetime	../bbdn/core/Auth.py	/^from datetime import datetime, timedelta$/;"	kind:namespace	line:32
+delete	../bbdn/core/LearnObject.py	/^    def delete(self):$/;"	kind:member	line:250
+delete	../old_code/LearnObject0.py	/^    def delete(self, obj_id=None, id_type=None):$/;"	kind:member	line:107
+do_rest	../bbdn/core/LearnObject.py	/^    def do_rest(self, url):$/;"	kind:member	line:399
+do_rest	../old_code/LearnObject0.py	/^    def do_rest(self, method, url, _caller, data=None, params=None):$/;"	kind:member	line:179
+docopt	../bbrestapi.py	/^from docopt import docopt$/;"	kind:namespace	line:1
+docopt	../old_code/bbrestapi0.py	/^from docopt import docopt$/;"	kind:namespace	line:28
+get	../bbdn/core/LearnObject.py	/^    def get(self):$/;"	kind:member	line:262
+get	../old_code/LearnObject0.py	/^    def get(self, obj_id=None, id_type=None, params=None, page=None, append=None):$/;"	kind:member	line:117
+get_key	../bbdn/core/Auth.py	/^    def get_key():$/;"	kind:member	line:64
+get_secret	../bbdn/core/Auth.py	/^    def get_secret():$/;"	kind:member	line:68
+get_token	../bbdn/core/Auth.py	/^    def get_token(self):$/;"	kind:member	line:136
+init_poolmanager	../bbdn/core/Auth.py	/^    def init_poolmanager(self, connections, maxsize, block=False, **pool_kwargs):$/;"	kind:member	line:47
+is_expired	../bbdn/core/Auth.py	/^    def is_expired(self, expiration_datetime):$/;"	kind:member	line:205
+json	../bbdn/core/Auth.py	/^import json$/;"	kind:namespace	line:27
+json	../bbdn/core/LearnObject.py	/^import json$/;"	kind:namespace	line:27
+json	../bbrestapi.py	/^import json$/;"	kind:namespace	line:5
+json	../old_code/LearnObject0.py	/^import json$/;"	kind:namespace	line:27
+json	../old_code/bbrestapi0.py	/^import json$/;"	kind:namespace	line:32
+license	../setup.py	/^    license='',$/;"	kind:variable	line:8
+name	../setup.py	/^    name='bbdn-rest',$/;"	kind:variable	line:4
+opts	../bbrestapi.py	/^    opts = docopt(usage, version='Bb REST API CLI v0.0.1')$/;"	kind:variable	line:106
+packages	../setup.py	/^    packages=['bbdn', 'bbdn.core'],$/;"	kind:variable	line:6
+prep_id	../old_code/LearnObject0.py	/^    def prep_id(self, obj_id=None, id_type=None):$/;"	kind:member	line:169
+prep_url	../bbdn/core/LearnObject.py	/^    def prep_url(self):$/;"	kind:member	line:274
+prep_url	../old_code/LearnObject0.py	/^    def prep_url(self, obj_id=None, id_type=None):$/;"	kind:member	line:133
+requests	../bbdn/core/Auth.py	/^import requests$/;"	kind:namespace	line:28
+requests	../bbdn/core/LearnObject.py	/^import requests$/;"	kind:namespace	line:28
+requests	../old_code/LearnObject0.py	/^import requests$/;"	kind:namespace	line:28
+revoke_token	../bbdn/core/Auth.py	/^    def revoke_token(self):$/;"	kind:member	line:145
+set_token	../bbdn/core/Auth.py	/^    def set_token(self):$/;"	kind:member	line:77
+settings	../bbdn/core/Auth.py	/^from settings import config as settings$/;"	kind:namespace	line:31
+settings	../bbdn/core/LearnObject.py	/^from settings import config as settings$/;"	kind:namespace	line:31
+settings	../old_code/LearnObject0.py	/^from settings import config as settings$/;"	kind:namespace	line:31
+settings.py	../settings.py	1;"	kind:file	line:1
+settings_backup.py	../settings_backup.py	1;"	kind:file	line:1
+setup	../setup.py	/^from distutils.core import setup$/;"	kind:namespace	line:1
+setup.py	../setup.py	1;"	kind:file	line:1
+sleep	../bbdn/core/Auth.py	/^from time import sleep$/;"	kind:namespace	line:33
+sys	../bbdn/core/LearnObject.py	/^import sys$/;"	kind:namespace	line:33
+sys	../bbrestapi.py	/^import sys$/;"	kind:namespace	line:2
+sys	../old_code/bbrestapi0.py	/^import sys$/;"	kind:namespace	line:29
+test	../old_code/bbrestapi0.py	/^def test():$/;"	kind:function	line:157
+timedelta	../bbdn/core/Auth.py	/^from datetime import datetime, timedelta$/;"	kind:namespace	line:32
+update	../bbdn/core/LearnObject.py	/^    def update(self, obj_id=None, id_type=None, data=None, params=None):$/;"	kind:member	line:192
+update	../old_code/LearnObject0.py	/^    def update(self, obj_id=None, id_type=None, data=None, params=None):$/;"	kind:member	line:87
+url	../setup.py	/^    url='git@github.com:elmiguel\/BBDN-REST-DEMO_Python.git',$/;"	kind:variable	line:7
+validators	../bbdn/core/LearnObject.py	/^validators = {$/;"	kind:variable	line:35
+validators	../old_code/LearnObject0.py	/^validators = {$/;"	kind:variable	line:34
+version	../setup.py	/^    version='0.0.1',$/;"	kind:variable	line:5
